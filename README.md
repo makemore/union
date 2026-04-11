@@ -6,7 +6,7 @@ Union provides shared infrastructure for managing patient data, clinical workflo
 
 ## Architecture
 
-Union is built as a distributed network of **nodes**. Each deployment (a hospital, clinic, or coordination service) runs its own instance while remaining able to communicate with others.
+Union is built as a network of **nodes**. A node is a logical unit — a hospital, a clinic, a backbone routing service — with its own identity, data, and role in the network.
 
 ```
 ┌───────────────────────────────────────────────────┐
@@ -24,6 +24,20 @@ Union is built as a distributed network of **nodes**. Each deployment (a hospita
 │  configured for its role.                         │
 └───────────────────────────────────────────────────┘
 ```
+
+### Deployment Model
+
+A single Union install can manage **one node or many**. The install doesn't assume it _is_ a single node — it manages a set of nodes on behalf of an organisation.
+
+| Scenario | Managed Nodes | Example |
+|---|---|---|
+| **Single-node** | 1 | A community clinic running its own Union instance. |
+| **Multi-node** | Several | An NHS trust operating three hospitals from one install. |
+| **Backbone** | 1+ | A coordination service routing messages between regions. |
+
+This means all data — patients, events, encounters — is scoped to the node that owns it. There is no ambient "current node" baked into the system. Code that creates events or mutates data always knows _which node_ it is acting on behalf of.
+
+The design principle: if a single install could theoretically run every node in the country, then data ownership, scoping, and isolation must be correct by construction. We will never do this, but designing for the possibility ensures the architecture holds at any real-world scale — one hospital, one trust, or an entire region.
 
 ### Node Roles
 
@@ -58,7 +72,7 @@ union_platform/
 ### Core Primitives
 
 - **Event** — Immutable, append-only record of every meaningful action. UUID-identified, JSON payload, traceable to source node and actor. Foundation for auditability and cross-node communication.
-- **Node** — Represents a deployment in the network. Carries identity, role, and endpoint for inter-node messaging.
+- **Node** — Represents any node in the network (local or remote). Nodes marked `is_managed=True` are operated by this install; remote peer nodes are `is_managed=False`. A single install can manage one or many.
 - **Patient** — Record with an explicit `home_node` establishing which node owns and is authoritative for the patient's data.
 
 ### Event-First Communication
@@ -112,8 +126,10 @@ python manage.py runserver
 ## Design Principles
 
 - **Data ownership is explicit.** Every patient record has a home node. Mutations happen at the source of truth.
+- **Everything is node-scoped.** There is no ambient "current node." All data and events are attributed to a specific node, whether the install manages one or a hundred.
 - **Events are immutable.** Once written, they cannot be updated or deleted. This guarantees auditability.
 - **Roles are structural.** App loading is determined at boot, not scattered through runtime conditionals.
+- **Design for the ceiling, deploy on the floor.** The architecture assumes a single install could manage every node in the network. It never will, but that constraint keeps data isolation and scoping honest at every real-world scale.
 - **The host project stays thin.** Business logic lives in `union_platform`, not in the Django project shell.
 - **Adopt incrementally.** Union is designed to run alongside existing systems, not replace them overnight.
 
