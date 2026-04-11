@@ -9,20 +9,20 @@ Union provides shared infrastructure for managing patient data, clinical workflo
 Union is built as a distributed network of **nodes**. Each deployment (a hospital, clinic, or coordination service) runs its own instance while remaining able to communicate with others.
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   Union Network                     │
-│                                                     │
-│  ┌──────────┐    ┌──────────────┐    ┌──────────┐   │
-│  │  Local    │◄──►│   Backbone   │◄──►│  Local   │   │
-│  │  Node     │    │   Node       │    │  Node    │   │
-│  │          │    │              │    │          │   │
-│  │ Hospital │    │  Routing &   │    │  Clinic  │   │
-│  │ A        │    │  Coordination│    │  B       │   │
-│  └──────────┘    └──────────────┘    └──────────┘   │
-│                                                     │
-│  Every node runs the same codebase,                 │
-│  configured for its role.                           │
-└─────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────┐
+│                  Union Network                    │
+│                                                   │
+│  ┌──────────┐    ┌──────────────┐    ┌─────────┐  │
+│  │  Local   │<-->│   Backbone   │<-->│  Local  │  │
+│  │  Node    │    │    Node      │    │  Node   │  │
+│  │          │    │              │    │         │  │
+│  │ Hospital │    │  Routing &   │    │ Clinic  │  │
+│  │ A        │    │ Coordination │    │ B       │  │
+│  └──────────┘    └──────────────┘    └─────────┘  │
+│                                                   │
+│  Every node runs the same codebase,               │
+│  configured for its role.                         │
+└───────────────────────────────────────────────────┘
 ```
 
 ### Node Roles
