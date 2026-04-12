@@ -9,6 +9,7 @@
     "frontend-oracle-health",
     "frontend-nervecentre",
     "frontend-rio",
-    "frontend-meditech"
+    "frontend-meditech",
+    "frontend-nhs"
   ]
 }
