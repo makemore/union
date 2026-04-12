@@ -91,14 +91,74 @@ emit_event(
 
 Events are written directly to the database today. Async transport and queue-based delivery will be layered in without changing the emission interface.
 
+## Frontends
+
+Union's frontend strategy is a single **legally safe** NHS design system frontend (`frontend-nhs`) with configurable layout presets that approximate the spatial patterns of any major UK clinical system.
+
+### Why not one layout?
+
+Clinicians have deep muscle memory in whichever system they currently use — EMIS, SystmOne, Epic, Cerner, etc. A single "our way" UI forces retraining. Instead, Union provides **layout presets** that make the interface _feel_ familiar from day one, while using the NHS design system and Union's own branding throughout.
+
+### Architecture
+
+```
+packages/union-core/         →  @union/core (shared auth, API client, env config, base components)
+frontend-nhs/                →  Main frontend — NHS design system with configurable layout presets
+frontend-emis/               →  Reference implementation — EMIS-style skin (research/prototyping)
+frontend-systmone/           →  Stub — SystmOne patterns
+frontend-epic/               →  Stub — Epic Hyperspace patterns
+frontend-oracle-health/      →  Stub — Oracle Health / Cerner patterns
+frontend-nervecentre/        →  Stub — Nervecentre patterns
+frontend-rio/                →  Stub — Rio patterns
+frontend-meditech/           →  Stub — MEDITECH Expanse patterns
+```
+
+### @union/core — Shared Package
+
+All frontends share common infrastructure via `@union/core`:
+
+- **Auth** — `AuthProvider`, `useAuth()`, `useUser()` hooks, token management
+- **API** — Union API client with token auth and error handling
+- **Env** — Environment config validation (`NEXT_PUBLIC_UNION_API_URL`, etc.)
+- **Components** — `LoginPage`, `RegisterPage` — use directly, customise via props, or replace entirely
+
+### frontend-nhs — Configurable Layout Presets
+
+16 layout flags combine into presets that approximate each major system:
+
+| Preset | Feels Like | Key Characteristics |
+|---|---|---|
+| `gp-classic` | EMIS Web | Tabs, ribbon toolbar, clinical tree, compact tables |
+| `gp-tree` | SystmOne | Tree as primary nav, simple toolbar, comfortable density |
+| `acute` | Epic Hyperspace | Tabs, storyboard strip, notes-based records, sidebar |
+| `acute-legacy` | Oracle/Cerner | Tabbed organiser, flowsheet results, table records |
+| `mobile-ward` | Nervecentre | Bottom tabs, cards, FAB button, spacious mobile-first |
+| `community` | Rio | Sidebar nav, structured forms, timeline records |
+| `web-acute` | MEDITECH Expanse | Tabs, status board, flowsheet results |
+
+Run the interactive design system to see all presets live:
+
+```bash
+cd frontend-nhs && npm install && npm run dev
+# Open http://localhost:3000/design-system
+```
+
+### Tech Stack
+
+- **Framework:** Next.js 16 (React 19, App Router)
+- **Styling:** Tailwind CSS 4, NHS colour tokens
+- **Components:** shadcn/ui
+- **Monorepo:** npm workspaces
+
 ## Getting Started
 
 ### Prerequisites
 
 - Python 3.11+
+- Node.js 20+
 - PostgreSQL (or set `USE_SQLITE=true` for local testing)
 
-### Setup
+### Backend Setup
 
 ```bash
 cd backend
@@ -113,7 +173,22 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### Frontend Setup
+
+```bash
+# From the repo root — installs all workspace dependencies
+npm install
+
+# Run the NHS frontend
+cd frontend-nhs && npm run dev
+
+# Or run the EMIS reference frontend
+cd frontend-emis && npm run dev
+```
+
 ### Configuration
+
+#### Backend
 
 | Environment Variable | Default | Description |
 |---|---|---|
@@ -122,6 +197,14 @@ python manage.py runserver
 | `USE_SQLITE` | `false` | Use SQLite instead of PostgreSQL |
 | `SECRET_KEY` | insecure default | Django secret key |
 | `DEBUG` | `true` | Django debug mode |
+
+#### Frontend
+
+| Environment Variable | Default | Description |
+|---|---|---|
+| `NEXT_PUBLIC_UNION_API_URL` | `http://localhost:8000` | Union backend API URL |
+| `NEXT_PUBLIC_UNION_ENV` | `development` | Environment name |
+| `NEXT_PUBLIC_UNION_DEBUG` | `true` | Enable debug logging |
 
 ## Design Principles
 
