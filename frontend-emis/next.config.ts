@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Transpile the @union/core workspace package (raw TypeScript)
+  transpilePackages: ["@union/core"],
 };
 
 export default nextConfig;

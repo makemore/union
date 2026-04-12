@@ -8,3 +8,9 @@ build/
 db.sqlite3
 .env
 *.log
+
+# Node
+node_modules/
+.next/
+.env.local
+package-lock.json

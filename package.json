@@ -1,0 +1,14 @@
+{
+  "name": "union",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "frontend-emis",
+    "frontend-systmone",
+    "frontend-epic",
+    "frontend-oracle-health",
+    "frontend-nervecentre",
+    "frontend-rio",
+    "frontend-meditech"
+  ]
+}
